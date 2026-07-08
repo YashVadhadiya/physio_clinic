@@ -258,7 +258,7 @@ export function PatientPage() {
 
       {viewPatient && (
         <div className="modal-overlay" onClick={() => { setViewPatient(null); setVisitHistory([]); }}>
-          <div className="modal" onClick={e => e.stopPropagation()} style={{ maxWidth: 'var(--container-max)' }}>
+          <div className="modal" onClick={e => e.stopPropagation()}>
             <div className="modal-header">
               <h3 className="modal-title">{viewPatient.Name} - Visit History</h3>
               <button className="btn btn-icon btn-secondary" onClick={() => { setViewPatient(null); setVisitHistory([]); }}>

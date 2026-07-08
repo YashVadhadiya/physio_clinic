@@ -10,6 +10,7 @@
 html {
   font-size: 16px;
   -webkit-text-size-adjust: 100%;
+  overflow-x: hidden;
 }
 
 body {
@@ -20,6 +21,7 @@ body {
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
 }
 
 #root {
@@ -773,13 +775,15 @@ input, select, textarea {
     padding: var(--spacing-md);
   }
   .modal-overlay {
-    padding: 0;
+    padding: 0 var(--spacing-sm);
+    align-items: flex-end;
   }
   .modal {
+    width: 100%;
     max-width: 100%;
-    border-radius: 0;
-    margin: auto var(--spacing-sm);
-    max-height: 90vh;
+    border-radius: var(--rounded-lg) var(--rounded-lg) 0 0;
+    margin: 0;
+    max-height: 85vh;
   }
   .modal-body {
     padding: var(--spacing-lg);
@@ -842,6 +846,8 @@ input, select, textarea {
     padding: var(--spacing-md);
     border-bottom: 1px solid var(--canvas-soft);
     font-size: var(--body-sm);
+    word-break: break-word;
+    overflow-wrap: break-word;
   }
   .table td:last-child {
     border-bottom: none;

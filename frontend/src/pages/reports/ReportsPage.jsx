@@ -133,11 +133,11 @@ export function ReportsPage() {
                     <tbody>
                       {data.visits.map((v, i) => (
                         <tr key={i}>
-                          <td>{v.VisitTime}</td>
-                          <td>{v.PatientName}</td>
-                          <td>{v.WorkerName}</td>
-                          <td>{v.VisitType}</td>
-                          <td><Icons.Rupee />{v.Amount}</td>
+                          <td data-label="Time">{v.VisitTime}</td>
+                          <td data-label="Patient">{v.PatientName}</td>
+                          <td data-label="Worker">{v.WorkerName}</td>
+                          <td data-label="Type">{v.VisitType}</td>
+                          <td data-label="Amount"><Icons.Rupee />{v.Amount}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -276,10 +276,10 @@ export function ReportsPage() {
                     <tbody>
                       {data.pendingVisits.map((v, i) => (
                         <tr key={i}>
-                          <td>{v.VisitDate}</td>
-                          <td>{v.PatientName}</td>
-                          <td>{v.WorkerName}</td>
-                          <td><Icons.Rupee />{v.Amount}</td>
+                          <td data-label="Date">{v.VisitDate}</td>
+                          <td data-label="Patient">{v.PatientName}</td>
+                          <td data-label="Worker">{v.WorkerName}</td>
+                          <td data-label="Amount"><Icons.Rupee />{v.Amount}</td>
                         </tr>
                       ))}
                     </tbody>
