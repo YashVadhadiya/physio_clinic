@@ -37,7 +37,7 @@ export function WorkerDashboard() {
       const res = await dashboardAPI.getWorker();
       setData(res.data.data);
     } catch (err) {
-      const msg = err.response?.data?.message || 'Failed to load dashboard';
+      const msg = err.message || 'Failed to load dashboard';
       setError(msg);
       toast(msg, 'error');
     } finally {
@@ -79,7 +79,7 @@ export function WorkerDashboard() {
       setVisitForm({ PatientID: '', VisitType: 'Home', FeesCollected: 'No', Amount: '0', TreatmentNotes: '', Remarks: '', NextVisit: '' });
       loadDashboard();
     } catch (err) {
-      toast(err.response?.data?.message || 'Failed to record visit', 'error');
+      toast(err.message || 'Failed to record visit', 'error');
     } finally { setSubmitting(false); }
   };
 
@@ -93,7 +93,7 @@ export function WorkerDashboard() {
       setNewPatient({ Name: '', Mobile: '', Address: '', Gender: '', Age: '', Notes: '' });
       handleSelectPatient(res.data.data);
     } catch (err) {
-      toast(err.response?.data?.message || 'Failed to create patient', 'error');
+      toast(err.message || 'Failed to create patient', 'error');
     } finally { setSubmitting(false); }
   };
 

@@ -17,7 +17,7 @@ function ReportCard({ title, description, onGenerate, children }) {
         setData(result);
         setShowResult(true);
       } catch (err) {
-        toast(err.response?.data?.message || 'Failed to generate report', 'error');
+        toast(err.message || 'Failed to generate report', 'error');
       } finally {
         setLoading(false);
       }

@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { authAPI } from '../services/api';
+import { supabase } from '../lib/supabase';
+import * as db from '../services/supabaseDB';
 
 const AuthContext = createContext(null);
 
@@ -7,43 +8,68 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const loadUser = useCallback(async () => {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      setLoading(false);
-      return;
-    }
+  const fetchProfile = useCallback(async (email) => {
     try {
-      const res = await authAPI.getProfile();
-      setUser({ ...res.data.data, role: res.data.data.Role, token });
+      const profile = await db.getProfileByEmail(email);
+      if (profile) {
+        const normalized = { ...profile, role: profile.Role, token: localStorage.getItem('sb-token') };
+        setUser(normalized);
+        localStorage.setItem('user', JSON.stringify(profile));
+        return profile;
+      }
     } catch {
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-    } finally {
-      setLoading(false);
+      return null;
     }
   }, []);
 
-  useEffect(() => { loadUser(); }, [loadUser]);
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (session?.user) {
+        localStorage.setItem('sb-token', session.access_token);
+        await fetchProfile(session.user.email);
+      } else {
+        const stored = localStorage.getItem('user');
+        if (!stored) {
+          setUser(null);
+          localStorage.removeItem('user');
+          localStorage.removeItem('sb-token');
+        }
+      }
+      setLoading(false);
+    });
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) {
+        fetchProfile(session.user.email).then(() => setLoading(false));
+      } else {
+        const stored = localStorage.getItem('user');
+        if (stored) {
+          try { setUser({ ...JSON.parse(stored), role: JSON.parse(stored).Role }); } catch {}
+        }
+        setLoading(false);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [fetchProfile]);
 
   const login = async (mobileOrEmail, password) => {
-    const res = await authAPI.login({ mobileOrEmail, password });
-    const { worker, token } = res.data.data;
-    const normalized = { ...worker, role: worker.Role, token };
-    localStorage.setItem('token', token);
-    localStorage.setItem('user', JSON.stringify(worker));
+    const result = await db.loginUser(mobileOrEmail, password);
+    const normalized = { ...result.worker, role: result.worker.Role, token: result.token };
+    localStorage.setItem('user', JSON.stringify(result.worker));
+    localStorage.setItem('sb-token', result.token);
     setUser(normalized);
-    return worker;
+    return result.worker;
   };
 
   const register = async (data) => {
-    const res = await authAPI.register(data);
-    return res.data.data;
+    return db.registerWorker(data);
   };
 
-  const logout = () => {
-    localStorage.removeItem('token');
+  const logout = async () => {
+    try { await db.signOutUser(); } catch {}
     localStorage.removeItem('user');
+    localStorage.removeItem('sb-token');
     setUser(null);
   };
 

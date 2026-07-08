@@ -60,7 +60,7 @@ export function AdminDashboard() {
     dashboardAPI.getAdmin()
       .then(res => setData(res.data.data))
       .catch(err => {
-        const msg = err.response?.data?.message || 'Failed to load dashboard';
+        const msg = err.message || 'Failed to load dashboard';
         setError(msg);
         toast(msg, 'error');
       })

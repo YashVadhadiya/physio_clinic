@@ -1,89 +1,84 @@
-import axios from 'axios';
+import * as db from './supabaseDB';
 
-const api = axios.create({
-  baseURL: '/api',
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
+function wrap(data) {
+  return { data: { data } };
+}
 
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
-
-api.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    if (error.response?.status === 401) {
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      if (window.location.pathname !== '/login') {
-        window.location.href = '/login';
-      }
-    }
-    return Promise.reject(error);
-  }
-);
+function wrapPaginated(result) {
+  return { data: { data: result.data, pagination: result.pagination } };
+}
 
 export const authAPI = {
-  login: (data) => api.post('/auth/login', data),
-  register: (data) => api.post('/auth/register', data),
-  getProfile: () => api.get('/auth/profile'),
-  changePassword: (data) => api.put('/auth/change-password', data),
-  resetPassword: (id) => api.put(`/auth/reset-password/${id}`),
+  login: (data) => db.loginUser(data.mobileOrEmail, data.password).then(wrap),
+  register: (data) => db.registerWorker(data).then(wrap),
+  getProfile: () => db.getProfileByEmail(supabaseEmail()).then(wrap),
+  changePassword: (data) => db.changePassword(data.id, data.oldPassword, data.newPassword),
+  resetPassword: (id) => db.resetPassword(id),
 };
 
 export const workerAPI = {
-  getAll: (params) => api.get('/workers', { params }),
-  getById: (id) => api.get(`/workers/${id}`),
-  getActive: () => api.get('/workers/active'),
-  update: (id, data) => api.put(`/workers/${id}`, data),
-  toggleStatus: (id) => api.patch(`/workers/${id}/toggle-status`),
-  getStats: (id) => api.get(`/workers/${id}/stats`),
-  search: (q) => api.get('/workers/search', { params: { q } }),
+  getAll: (params) => db.getWorkers(params).then(wrapPaginated),
+  getById: (id) => db.getWorkerById(id).then(wrap),
+  getActive: () => db.getActiveWorkers().then(wrap),
+  update: (id, data) => db.updateWorker(id, data).then(wrap),
+  toggleStatus: (id) => db.toggleWorkerStatus(id).then(wrap),
+  getStats: (id) => db.getWorkerStats(id).then(wrap),
+  search: (q) => db.searchWorkers(q).then(wrap),
 };
 
 export const patientAPI = {
-  getAll: (params) => api.get('/patients', { params }),
-  getById: (id) => api.get(`/patients/${id}`),
-  create: (data) => api.post('/patients', data),
-  update: (id, data) => api.put(`/patients/${id}`, data),
-  delete: (id) => api.delete(`/patients/${id}`),
-  search: (q) => api.get('/patients/search', { params: { q } }),
-  findByMobile: (mobile) => api.get(`/patients/mobile/${mobile}`),
-  getVisitHistory: (id) => api.get(`/patients/${id}/visits`),
-  getRecent: (limit) => api.get('/patients/recent', { params: { limit } }),
+  getAll: (params) => db.getPatients(params).then(wrapPaginated),
+  getById: (id) => db.getPatientById(id).then(wrap),
+  create: (data) => db.createPatient(data, currentUserId()).then(wrap),
+  update: (id, data) => db.updatePatient(id, data).then(wrap),
+  delete: (id) => db.deletePatient(id),
+  search: (q) => db.searchPatients(q).then(wrap),
+  findByMobile: (mobile) => db.findPatientByMobile(mobile).then(wrap),
+  getVisitHistory: (id) => db.getPatientVisitHistory(id).then(wrap),
+  getRecent: (limit) => db.getRecentPatients(limit).then(wrap),
 };
 
 export const visitAPI = {
-  getAll: (params) => api.get('/visits', { params }),
-  getById: (id) => api.get(`/visits/${id}`),
-  create: (data) => api.post('/visits', data),
-  update: (id, data) => api.put(`/visits/${id}`, data),
-  delete: (id) => api.delete(`/visits/${id}`),
-  getToday: () => api.get('/visits/today'),
-  getByDateRange: (params) => api.get('/visits/date-range', { params }),
-  getByWorker: (workerId, params) => api.get(`/visits/worker/${workerId}`, { params }),
-  getByPatient: (patientId, params) => api.get(`/visits/patient/${patientId}`, { params }),
-  search: (q) => api.get('/visits/search', { params: { q } }),
+  getAll: (params) => db.getVisits(params).then(wrapPaginated),
+  getById: (id) => db.getVisitById(id).then(wrap),
+  create: (data) => db.createVisit(data, currentUserId()).then(wrap),
+  update: (id, data) => db.updateVisit(id, data).then(wrap),
+  delete: (id) => db.deleteVisit(id),
+  getToday: () => db.getTodayVisits().then(wrap),
+  getByDateRange: (params) => db.getVisitsByDateRange(params.startDate, params.endDate, params.page, params.limit).then(wrapPaginated),
+  getByWorker: (workerId, params) => db.getVisitsByWorker(workerId, params?.page, params?.limit).then(wrapPaginated),
+  getByPatient: (patientId, params) => db.getVisitsByPatient(patientId, params?.page, params?.limit).then(wrapPaginated),
+  search: (q) => db.searchVisits(q).then(wrap),
 };
 
 export const dashboardAPI = {
-  getAdmin: () => api.get('/dashboard/admin'),
-  getWorker: () => api.get('/dashboard/worker'),
+  getAdmin: () => db.getAdminDashboard().then(wrap),
+  getWorker: () => db.getWorkerDashboard(currentUserId()).then(wrap),
 };
 
 export const reportAPI = {
-  daily: (params) => api.get('/reports/daily', { params }),
-  weekly: (params) => api.get('/reports/weekly', { params }),
-  monthly: (params) => api.get('/reports/monthly', { params }),
-  worker: (params) => api.get('/reports/worker', { params }),
-  patientHistory: (id) => api.get(`/reports/patient/${id}/history`),
-  fees: (params) => api.get('/reports/fees', { params }),
+  daily: (params) => db.getDailyReport(params?.date).then(wrap),
+  weekly: (params) => db.getWeeklyReport(params?.endDate).then(wrap),
+  monthly: (params) => db.getMonthlyReport(params?.year, params?.month).then(wrap),
+  worker: (params) => db.getWorkerReport(params.workerId, params.startDate, params.endDate).then(wrap),
+  patientHistory: (id) => db.getPatientHistoryReport(id).then(wrap),
+  fees: (params) => db.getFeeReport(params?.startDate, params?.endDate, params?.workerId).then(wrap),
 };
 
-export default api;
+function currentUserId() {
+  try {
+    const stored = localStorage.getItem('user');
+    if (stored) return JSON.parse(stored).WorkerID;
+  } catch {}
+  return null;
+}
+
+function supabaseEmail() {
+  try {
+    const stored = localStorage.getItem('user');
+    if (stored) return JSON.parse(stored).Email;
+  } catch {}
+  return null;
+}
+
+export default db;

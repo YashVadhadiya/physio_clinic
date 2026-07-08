@@ -24,7 +24,7 @@ export function LoginPage() {
       toast('Login successful', 'success');
       navigate(worker.Role === 'admin' ? '/admin' : '/worker');
     } catch (err) {
-      toast(err.response?.data?.message || 'Invalid credentials', 'error');
+      toast(err.message || 'Invalid credentials', 'error');
     } finally {
       setLoading(false);
     }

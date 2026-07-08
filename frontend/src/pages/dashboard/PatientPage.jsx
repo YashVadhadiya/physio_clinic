@@ -85,7 +85,7 @@ export function PatientPage() {
       setShowModal(false);
       loadPatients();
     } catch (err) {
-      toast(err.response?.data?.message || 'Operation failed', 'error');
+      toast(err.message || 'Operation failed', 'error');
     } finally {
       setSubmitting(false);
     }

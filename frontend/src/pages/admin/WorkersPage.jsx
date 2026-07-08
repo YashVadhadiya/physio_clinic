@@ -38,7 +38,7 @@ export function WorkersPage() {
       setForm({ Name: '', Mobile: '', Email: '', Address: '', Password: '', EmergencyContact: '' });
       loadWorkers();
     } catch (err) {
-      toast(err.response?.data?.message || 'Failed to create worker', 'error');
+      toast(err.message || 'Failed to create worker', 'error');
     } finally {
       setSubmitting(false);
     }
