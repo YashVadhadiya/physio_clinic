@@ -44,8 +44,8 @@ export function WorkersPage() {
   const handleReset = async (id) => {
     const confirmed = await confirmDialog({ title: 'Reset Password', message: 'Reset to default password?', confirmText: 'Reset', type: 'warning' });
     if (!confirmed) return;
-    try { const res = await authAPI.resetPassword(id); toast(`Password: ${res.data.data.defaultPassword}`, 'info'); }
-    catch { toast('Failed', 'error'); }
+    try { const res = await authAPI.resetPassword(id); toast(`Password reset to: ${res.data.data.defaultPassword}`, 'success'); }
+    catch (err) { toast(err.message || 'Failed to reset password', 'error'); }
   };
 
   if (loading) return <Loader text="Loading workers..." />;

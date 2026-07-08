@@ -1,4 +1,4 @@
-import { supabase } from '../lib/supabase';
+import { supabase, getAdminClient } from '../lib/supabase';
 
 function generateId(prefix = '') {
   const timestamp = Date.now().toString(36).toUpperCase();
@@ -116,13 +116,49 @@ export async function resetPassword(workerId) {
   const defaultPassword = 'physio123';
   const worker = await getWorkerById(workerId);
   if (!worker) throw new Error('Worker not found');
-  const { data, error } = await supabase.rpc('reset_worker_password', {
+
+  let errors = [];
+
+  // Strategy 1: RPC (works if pgcrypto extension is enabled)
+  const { data: rpcData, error: rpcErr } = await supabase.rpc('reset_worker_password', {
     p_email: worker.Email,
     p_password: defaultPassword,
   });
-  if (error) throw new Error('Password reset failed. Use Supabase Dashboard to manually reset.');
-  await logActivity(workerId, 'PASSWORD_RESET', 'Password reset by admin');
-  return { message: 'Password reset successfully', defaultPassword: data || defaultPassword };
+  if (!rpcErr && rpcData) {
+    await logActivity(workerId, 'PASSWORD_RESET', 'Password reset by admin');
+    return { message: 'Password reset successfully', defaultPassword: rpcData || defaultPassword };
+  }
+  errors.push(`RPC: ${rpcErr?.message}`);
+
+  // Strategy 2: Admin API (requires VITE_SUPABASE_SERVICE_KEY in .env)
+  const admin = getAdminClient();
+  if (admin) {
+    try {
+      const { data: userList, error: listErr } = await admin.auth.admin.listUsers();
+      if (!listErr) {
+        const target = userList.users.find(u => u.email === worker.Email);
+        if (target) {
+          const { error: updateErr } = await admin.auth.admin.updateUserById(target.id, { password: defaultPassword });
+          if (!updateErr) {
+            await logActivity(workerId, 'PASSWORD_RESET', 'Password reset by admin');
+            return { message: 'Password reset successfully', defaultPassword };
+          }
+          errors.push(`AdminAPI: ${updateErr.message}`);
+        } else {
+          errors.push('Auth user not found for this email');
+        }
+      } else {
+        errors.push(`ListUsers: ${listErr.message}`);
+      }
+    } catch (e) { errors.push(`AdminAPI: ${e.message}`); }
+  } else {
+    errors.push('VITE_SUPABASE_SERVICE_KEY not set in .env');
+  }
+
+  throw new Error(
+    `Password reset failed.\n${errors.join('\n')}\n\n` +
+    `To fix: add VITE_SUPABASE_SERVICE_KEY (your Supabase service_role key) to frontend/.env`
+  );
 }
 
 export async function signOutUser() {

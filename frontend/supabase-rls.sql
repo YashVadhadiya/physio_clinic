@@ -144,7 +144,7 @@ CREATE OR REPLACE FUNCTION reset_worker_password(p_email TEXT, p_password TEXT)
 RETURNS TEXT
 LANGUAGE plpgsql
 SECURITY DEFINER
-SET search_path = auth
+SET search_path = extensions, public, auth
 AS $$
 DECLARE
   v_user_id UUID;
