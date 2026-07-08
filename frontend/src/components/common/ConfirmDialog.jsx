@@ -15,7 +15,7 @@ export function confirmDialog({ title, message, confirmText = 'Confirm', cancelT
       <p class="confirm-message">${message}</p>
       <div class="confirm-actions">
         <button class="btn btn-secondary confirm-cancel">${cancelText}</button>
-        <button class="btn confirm-confirm ${type === 'danger' ? 'btn-danger' : 'btn-primary'}">${confirmText}</button>
+        <button class="btn confirm-confirm ${type === 'danger' || type === 'error' ? 'btn-danger' : 'btn-primary'}">${confirmText}</button>
       </div>
     </div>
   `;
@@ -35,12 +35,13 @@ export function confirmDialog({ title, message, confirmText = 'Confirm', cancelT
     }
     .confirm-dialog {
       background: #fff;
-      border-radius: 24px;
+      border-radius: 12px;
       padding: 32px;
       max-width: 400px;
       width: 100%;
       text-align: center;
-      box-shadow: 0 20px 25px rgba(14,15,12,0.1);
+      border: 1px solid #dbe4df;
+      box-shadow: 0 24px 60px rgba(16,35,31,0.16);
       animation: fadeIn 0.3s ease;
     }
     .confirm-icon {
@@ -52,18 +53,18 @@ export function confirmDialog({ title, message, confirmText = 'Confirm', cancelT
       justify-content: center;
       margin: 0 auto 16px;
     }
-    .confirm-icon.info { background: #e2f6d5; color: #0e0f0c; }
-    .confirm-icon.warning { background: #fff3cd; color: #b86700; }
-    .confirm-icon.error { background: #fde8e8; color: #d03238; }
+    .confirm-icon.info { background: #e6fffb; color: #0f766e; }
+    .confirm-icon.warning { background: #fff7ed; color: #b45309; }
+    .confirm-icon.error { background: #fee2e2; color: #dc2626; }
     .confirm-title {
       font-size: 18px;
-      font-weight: 600;
-      color: #0e0f0c;
+      font-weight: 900;
+      color: #10231f;
       margin-bottom: 8px;
     }
     .confirm-message {
       font-size: 14px;
-      color: #454745;
+      color: #4b635b;
       margin-bottom: 24px;
       line-height: 1.5;
     }
@@ -71,6 +72,17 @@ export function confirmDialog({ title, message, confirmText = 'Confirm', cancelT
       display: flex;
       gap: 12px;
       justify-content: center;
+    }
+    @media (max-width: 480px) {
+      .confirm-dialog {
+        padding: 24px;
+      }
+      .confirm-actions {
+        flex-direction: column-reverse;
+      }
+      .confirm-actions .btn {
+        width: 100%;
+      }
     }
   `;
   document.head.appendChild(style);

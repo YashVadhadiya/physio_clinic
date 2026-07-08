@@ -17,205 +17,67 @@ const workerLinks = [
 ];
 
 export function Sidebar({ isOpen, onClose }) {
-  const { user, isAdmin } = useAuth();
+  const { user, isAdmin, logout } = useAuth();
   const links = isAdmin ? adminLinks : workerLinks;
 
   return (
     <>
-      {isOpen && (
-        <div className="sidebar-overlay" onClick={onClose} />
-      )}
+      {isOpen && <div className="sb-overlay" onClick={onClose} />}
       <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
-        <div className="sidebar-header">
-          <div className="sidebar-logo">
-            <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-              <rect width="32" height="32" rx="8" fill="#9fe870"/>
-              <path d="M10 22V10l6 8 6-8v12" stroke="#0e0f0c" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+        <div className="sb-brand">
+          <div className="sb-logo">
+            <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
+              <rect width="32" height="32" rx="8" fill="#0d9488"/>
+              <path d="M10 22V10l6 8 6-8v12" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
-            <span className="logo-text">Planet Health Care</span>
+            <span>PhysioClinic</span>
           </div>
         </div>
 
-        <div className="sidebar-user">
-          <div className="sidebar-avatar">
-            {user?.name?.charAt(0)?.toUpperCase() || 'U'}
-          </div>
-          <div className="sidebar-user-info">
-            <span className="sidebar-user-name">{user?.name}</span>
-            <span className="sidebar-user-role">{isAdmin ? 'Admin' : 'Worker'}</span>
-          </div>
-        </div>
-
-        <nav className="sidebar-nav">
+        <nav className="sb-nav">
           {links.map((link) => {
             const IconComp = Icons[link.icon];
             return (
-              <NavLink
-                key={link.to}
-                to={link.to}
-                end={link.to === '/admin' || link.to === '/worker'}
-                className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
-                onClick={onClose}
-              >
-                <span className="sidebar-link-icon">{IconComp && <IconComp />}</span>
+              <NavLink key={link.to} to={link.to} end={link.to === '/admin' || link.to === '/worker'} className={({ isActive }) => `sb-link ${isActive ? 'active' : ''}`} onClick={onClose}>
+                <span className="sb-icon">{IconComp && <IconComp />}</span>
                 <span>{link.label}</span>
               </NavLink>
             );
           })}
         </nav>
 
-        <div className="sidebar-footer">
-          <div className="sidebar-footer-text">
-            Planet Health Care
+        <div className="sb-footer">
+          <div className="sb-user">
+            <div className="sb-avatar">{user?.name?.charAt(0)?.toUpperCase() || 'U'}</div>
+            <div className="sb-user-info">
+              <span className="sb-user-name">{user?.name}</span>
+              <span className="sb-user-role">{isAdmin ? 'Admin' : 'Worker'}</span>
+            </div>
           </div>
-          <div className="sidebar-footer-sub">Physiotherapy Clinic</div>
+          <button className="btn btn-ghost btn-sm sb-logout" onClick={logout}>
+            <Icons.Logout /> Sign Out
+          </button>
         </div>
       </aside>
 
       <style>{`
-        .sidebar-overlay {
-          display: none;
-        }
-
-        .sidebar {
-          position: fixed;
-          top: 0;
-          left: 0;
-          bottom: 0;
-          width: var(--sidebar-width);
-          background: var(--canvas);
-          border-right: 1px solid var(--canvas-soft);
-          display: flex;
-          flex-direction: column;
-          z-index: 100;
-          transition: transform 0.3s ease;
-        }
-
-        .sidebar-header {
-          padding: var(--spacing-lg) var(--spacing-xl);
-          border-bottom: 1px solid var(--canvas-soft);
-        }
-
-        .sidebar-logo {
-          display: flex;
-          align-items: center;
-          gap: var(--spacing-md);
-        }
-
-        .logo-text {
-          font-size: var(--body-md);
-          font-weight: 900;
-          color: var(--ink);
-          letter-spacing: -0.3px;
-        }
-
-        .sidebar-user {
-          display: flex;
-          align-items: center;
-          gap: var(--spacing-md);
-          padding: var(--spacing-lg) var(--spacing-xl);
-          border-bottom: 1px solid var(--canvas-soft);
-        }
-
-        .sidebar-avatar {
-          width: 40px;
-          height: 40px;
-          border-radius: var(--rounded-full);
-          background: var(--primary);
-          color: var(--on-primary);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-weight: 700;
-          font-size: var(--body-md);
-        }
-
-        .sidebar-user-info {
-          display: flex;
-          flex-direction: column;
-        }
-
-        .sidebar-user-name {
-          font-size: var(--body-sm);
-          font-weight: 600;
-          color: var(--ink);
-        }
-
-        .sidebar-user-role {
-          font-size: var(--caption);
-          color: var(--mute);
-          text-transform: capitalize;
-        }
-
-        .sidebar-nav {
-          flex: 1;
-          padding: var(--spacing-md) var(--spacing-sm);
-          overflow-y: auto;
-        }
-
-        .sidebar-link {
-          display: flex;
-          align-items: center;
-          gap: var(--spacing-md);
-          padding: var(--spacing-md) var(--spacing-lg);
-          border-radius: var(--rounded-xl);
-          color: var(--body);
-          font-size: var(--body-sm);
-          font-weight: 500;
-          transition: all 0.2s;
-          margin-bottom: 2px;
-        }
-
-        .sidebar-link:hover {
-          background: var(--canvas-soft);
-          color: var(--ink);
-        }
-
-        .sidebar-link.active {
-          background: var(--primary-pale);
-          color: var(--ink);
-          font-weight: 600;
-        }
-
-        .sidebar-link-icon {
-          width: 22px;
-          height: 22px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-
-        .sidebar-footer {
-          padding: var(--spacing-lg) var(--spacing-xl);
-          border-top: 1px solid var(--canvas-soft);
-        }
-
-        .sidebar-footer-text {
-          font-size: var(--caption);
-          font-weight: 600;
-          color: var(--ink);
-        }
-
-        .sidebar-footer-sub {
-          font-size: var(--caption);
-          color: var(--mute);
-        }
-
-        @media (max-width: 768px) {
-          .sidebar {
-            transform: translateX(-100%);
-          }
-          .sidebar.open {
-            transform: translateX(0);
-          }
-          .sidebar-overlay {
-            display: block;
-            position: fixed;
-            inset: 0;
-            background: rgba(14,15,12,0.5);
-            z-index: 99;
-          }
-        }
+        .sb-overlay{display:none;position:fixed;inset:0;background:rgba(12,26,23,.4);z-index:99}
+        .sidebar{position:fixed;top:0;left:0;bottom:0;width:var(--sidebar-w);background:var(--surface);border-right:1px solid var(--line);display:flex;flex-direction:column;z-index:100;transition:transform .3s;overflow:hidden}
+        @media(max-width:899px){.sidebar{transform:translateX(-100%)}.sidebar.open{transform:translateX(0)}.sb-overlay{display:block}}
+        .sb-brand{padding:var(--space-lg) var(--space-xl);border-bottom:1px solid var(--line)}
+        .sb-logo{display:flex;align-items:center;gap:var(--space-md);font-size:var(--text-base);font-weight:800;color:var(--ink);letter-spacing:-.02em}
+        .sb-nav{flex:1;padding:var(--space-md);overflow-y:auto}
+        .sb-link{display:flex;align-items:center;gap:var(--space-md);padding:10px var(--space-md);border-radius:var(--rounded-sm);color:var(--body);font-size:var(--text-sm);font-weight:600;transition:all .15s;margin-bottom:2px}
+        .sb-link:hover{background:var(--surface-hover);color:var(--ink)}
+        .sb-link.active{background:var(--primary-bg);color:var(--primary-dark);font-weight:700}
+        .sb-icon{width:20px;height:20px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+        .sb-footer{border-top:1px solid var(--line);padding:var(--space-lg) var(--space-xl);display:flex;flex-direction:column;gap:var(--space-md)}
+        .sb-user{display:flex;align-items:center;gap:var(--space-md)}
+        .sb-avatar{width:36px;height:36px;border-radius:var(--rounded-pill);background:var(--primary);color:var(--on-primary);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:var(--text-sm);flex-shrink:0}
+        .sb-user-info{display:flex;flex-direction:column;min-width:0}
+        .sb-user-name{font-size:var(--text-sm);font-weight:600;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+        .sb-user-role{font-size:var(--text-xs);color:var(--mute);text-transform:capitalize}
+        .sb-logout{width:100%;justify-content:center}
       `}</style>
     </>
   );

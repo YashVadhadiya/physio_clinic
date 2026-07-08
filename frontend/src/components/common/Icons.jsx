@@ -209,7 +209,7 @@ export function Icon({ name, size = 20, className = '', ...props }) {
   if (!IconComponent) return null;
   return (
     <span className={`icon ${className}`} style={{ width: size, height: size, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }} {...props}>
-      {IconComponent}
+      <IconComponent width={size} height={size} />
     </span>
   );
 }

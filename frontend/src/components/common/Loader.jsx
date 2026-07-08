@@ -21,7 +21,7 @@ export function Loader({ fullPage = false, text = 'Loading...' }) {
   }
 
   return (
-    <div className="loading-container">
+    <div className="loading-wrap">
       <div className="loading-dots">
         <span />
         <span />

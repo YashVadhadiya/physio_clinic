@@ -32,7 +32,7 @@ export function ToastContainer() {
   }, [addToast]);
 
   return (
-    <div className="toast-container">
+    <div className="toast-wrap">
       {toasts.map((t) => {
         const IconComp = iconMap[t.type] || Icons.Info;
         return (

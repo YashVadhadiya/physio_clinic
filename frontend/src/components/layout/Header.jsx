@@ -1,238 +1,84 @@
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Icons } from '../common/Icons';
 
 export function Header({ onToggleSidebar }) {
-  const { user, logout, isAdmin } = useAuth();
+  const { user, isAdmin, logout } = useAuth();
   const navigate = useNavigate();
   const [showMenu, setShowMenu] = useState(false);
+  const menuRef = useRef(null);
 
-  const handleLogout = () => {
-    logout();
-    navigate('/login');
-  };
+  useEffect(() => {
+    const handle = (e) => { if (menuRef.current && !menuRef.current.contains(e.target)) setShowMenu(false); };
+    document.addEventListener('mousedown', handle);
+    return () => document.removeEventListener('mousedown', handle);
+  }, []);
+
+  const handleLogout = () => { logout(); navigate('/login'); };
 
   return (
     <header className="header">
-      <div className="header-left">
-        <button className="menu-btn" onClick={onToggleSidebar}>
+      <div className="h-left">
+        <button className="h-menu-btn" onClick={onToggleSidebar} aria-label="Menu">
           <Icons.Menu />
         </button>
-        <div className="header-search">
+        <div className="h-search" onClick={() => navigate(isAdmin ? '/admin/patients' : '/worker/patients')}>
           <Icons.Search />
-          <input
-            type="text"
-            placeholder="Search patients, workers, visits..."
-            onFocus={() => navigate(isAdmin ? '/admin/patients' : '/worker/patients')}
-          />
+          <input type="text" placeholder="Search patients..." readOnly />
         </div>
       </div>
 
-      <div className="header-right">
-        <div className="header-profile" onClick={() => setShowMenu(!showMenu)}>
-          <div className="header-avatar">
-            {user?.name?.charAt(0)?.toUpperCase() || 'U'}
-          </div>
-          <span className="header-name">{user?.name}</span>
-        </div>
+      <div className="h-right" ref={menuRef}>
+        <button className="h-profile" onClick={() => setShowMenu(!showMenu)}>
+          <div className="h-avatar">{user?.name?.charAt(0)?.toUpperCase() || 'U'}</div>
+          <span className="h-name">{user?.name}</span>
+        </button>
 
         {showMenu && (
-          <>
-            <div className="header-menu-backdrop" onClick={() => setShowMenu(false)} />
-            <div className="header-menu">
-              <div className="header-menu-item" onClick={() => { setShowMenu(false); }}>
-                Profile Settings
-              </div>
-              <div className="header-menu-divider" />
-              <div className="header-menu-item danger" onClick={handleLogout}>
-                <Icons.Logout />
-                Sign Out
+          <div className="h-dropdown">
+            <div className="h-dropdown-header">
+              <div className="h-dd-avatar">{user?.name?.charAt(0)?.toUpperCase() || 'U'}</div>
+              <div>
+                <div className="h-dd-name">{user?.name}</div>
+                <div className="h-dd-role">{isAdmin ? 'Administrator' : 'Worker'}</div>
               </div>
             </div>
-          </>
+            <div className="h-dd-divider" />
+            <button className="h-dd-item danger" onClick={handleLogout}>
+              <Icons.Logout /> Sign Out
+            </button>
+          </div>
         )}
       </div>
 
       <style>{`
-        .header {
-          position: fixed;
-          top: 0;
-          left: var(--sidebar-width);
-          right: 0;
-          height: var(--header-height);
-          background: var(--canvas);
-          border-bottom: 1px solid var(--canvas-soft);
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          padding: 0 var(--spacing-xl);
-          z-index: 50;
-          transition: left 0.3s ease;
-        }
-
-        .header-left {
-          display: flex;
-          align-items: center;
-          gap: var(--spacing-lg);
-          flex: 1;
-        }
-
-        .menu-btn {
-          display: none;
-          background: none;
-          border: none;
-          color: var(--body);
-          padding: var(--spacing-xs);
-          border-radius: var(--rounded-sm);
-        }
-
-        .menu-btn:hover {
-          background: var(--canvas-soft);
-        }
-
-        .header-search {
-          position: relative;
-          max-width: 400px;
-          width: 100%;
-        }
-
-        .header-search svg {
-          position: absolute;
-          left: var(--spacing-md);
-          top: 50%;
-          transform: translateY(-50%);
-          color: var(--mute);
-        }
-
-        .header-search input {
-          width: 100%;
-          padding: var(--spacing-sm) var(--spacing-lg) var(--spacing-sm) 40px;
-          border: 1px solid var(--canvas-soft);
-          border-radius: var(--rounded-xl);
-          background: var(--canvas-soft);
-          color: var(--ink);
-          font-size: var(--body-sm);
-          transition: all 0.2s;
-        }
-
-        .header-search input:focus {
-          outline: none;
-          border-color: var(--primary);
-          background: var(--canvas);
-          box-shadow: 0 0 0 3px var(--primary-pale);
-        }
-
-        .header-search input::placeholder {
-          color: var(--mute);
-        }
-
-        .header-right {
-          position: relative;
-        }
-
-        .header-profile {
-          display: flex;
-          align-items: center;
-          gap: var(--spacing-sm);
-          cursor: pointer;
-          padding: var(--spacing-xs) var(--spacing-md);
-          border-radius: var(--rounded-xl);
-          transition: background 0.2s;
-        }
-
-        .header-profile:hover {
-          background: var(--canvas-soft);
-        }
-
-        .header-avatar {
-          width: 34px;
-          height: 34px;
-          border-radius: var(--rounded-full);
-          background: var(--primary);
-          color: var(--on-primary);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-weight: 700;
-          font-size: var(--body-sm);
-        }
-
-        .header-name {
-          font-size: var(--body-sm);
-          font-weight: 500;
-          color: var(--ink);
-        }
-
-        .header-menu-backdrop {
-          position: fixed;
-          inset: 0;
-          z-index: 49;
-        }
-
-        .header-menu {
-          position: absolute;
-          top: 100%;
-          right: 0;
-          margin-top: var(--spacing-sm);
-          background: var(--canvas);
-          border: 1px solid var(--canvas-soft);
-          border-radius: var(--rounded-xl);
-          box-shadow: var(--shadow-lg);
-          min-width: 200px;
-          z-index: 50;
-          overflow: hidden;
-        }
-
-        .header-menu-item {
-          display: flex;
-          align-items: center;
-          gap: var(--spacing-sm);
-          padding: var(--spacing-md) var(--spacing-lg);
-          font-size: var(--body-sm);
-          color: var(--ink);
-          cursor: pointer;
-          transition: background 0.2s;
-        }
-
-        .header-menu-item:hover {
-          background: var(--canvas-soft);
-        }
-
-        .header-menu-item.danger {
-          color: var(--negative);
-        }
-
-        .header-menu-divider {
-          height: 1px;
-          background: var(--canvas-soft);
-          margin: var(--spacing-xs) 0;
-        }
-
-        @media (max-width: 768px) {
-          .header {
-            left: 0;
-          }
-          .menu-btn {
-            display: flex;
-          }
-          .header-name {
-            display: none;
-          }
-          .header-search {
-            max-width: 100%;
-          }
-        }
-
-        @media (max-width: 360px) {
-          .header-menu {
-            min-width: 160px;
-            right: -8px;
-          }
-          .header-search input {
-            font-size: var(--body-sm);
-          }
-        }
+        .header{position:fixed;top:0;left:0;right:0;height:var(--header-h);background:rgba(255,255,255,.96);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 var(--space-lg);z-index:50;gap:var(--space-md)}
+        @media(min-width:900px){.header{left:var(--sidebar-w)}}
+        .h-left{display:flex;align-items:center;gap:var(--space-md);flex:1;min-width:0}
+        .h-menu-btn{display:flex;width:38px;height:38px;align-items:center;justify-content:center;color:var(--ink);border:1px solid var(--line);border-radius:var(--rounded-sm);background:var(--surface);flex-shrink:0;transition:background .15s}
+        .h-menu-btn:hover{background:var(--surface-hover)}
+        @media(min-width:900px){.h-menu-btn{display:none}}
+        .h-search{position:relative;max-width:480px;width:100%}
+        .h-search svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--mute);pointer-events:none}
+        .h-search input{width:100%;padding:8px 10px 8px 34px;border:1px solid var(--line);border-radius:var(--rounded-sm);background:var(--surface-hover);color:var(--ink);font-size:var(--text-sm);min-height:36px;transition:all .2s;cursor:pointer}
+        .h-search input:focus{outline:none;border-color:var(--primary);background:var(--surface);box-shadow:0 0 0 3px var(--primary-pale)}
+        .h-search input::placeholder{color:var(--mute)}
+        .h-right{position:relative}
+        .h-profile{display:flex;align-items:center;gap:var(--space-sm);padding:4px 8px 4px 4px;border-radius:var(--rounded-pill);transition:background .15s;border:1px solid transparent}
+        .h-profile:hover{border-color:var(--line);background:var(--surface-hover)}
+        .h-avatar{width:32px;height:32px;border-radius:var(--rounded-pill);background:var(--primary);color:var(--on-primary);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:var(--text-xs)}
+        .h-name{font-size:var(--text-sm);font-weight:600;color:var(--ink)}
+        @media(max-width:599px){.h-name{display:none}}
+        .h-dropdown{position:absolute;top:calc(100% + 6px);right:0;background:var(--surface);border:1px solid var(--line);border-radius:var(--rounded);box-shadow:var(--shadow-lg);min-width:220px;z-index:60;overflow:hidden;animation:fadeUp .2s ease}
+        .h-dropdown-header{display:flex;align-items:center;gap:var(--space-md);padding:var(--space-md) var(--space-lg)}
+        .h-dd-avatar{width:38px;height:38px;border-radius:var(--rounded-pill);background:var(--primary-bg);color:var(--primary-dark);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:var(--text-sm)}
+        .h-dd-name{font-size:var(--text-sm);font-weight:600;color:var(--ink)}
+        .h-dd-role{font-size:var(--text-xs);color:var(--mute)}
+        .h-dd-divider{height:1px;background:var(--line);margin:0}
+        .h-dd-item{display:flex;align-items:center;gap:var(--space-sm);padding:var(--space-md) var(--space-lg);font-size:var(--text-sm);color:var(--ink);width:100%;transition:background .15s}
+        .h-dd-item:hover{background:var(--surface-hover)}
+        .h-dd-item.danger{color:var(--negative)}
       `}</style>
     </header>
   );
