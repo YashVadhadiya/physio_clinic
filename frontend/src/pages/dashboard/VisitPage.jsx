@@ -101,18 +101,18 @@ export function VisitPage() {
               <tbody>
                 {visits.map((v) => (
                   <tr key={v.VisitID}>
-                    <td>{v.VisitDate}</td>
-                    <td>{v.VisitTime}</td>
-                    <td style={{ fontWeight: 500 }}>{v.PatientName || 'N/A'}</td>
-                    <td>{v.WorkerName || 'N/A'}</td>
-                    <td>
+                    <td data-label="Date">{v.VisitDate}</td>
+                    <td data-label="Time">{v.VisitTime}</td>
+                    <td data-label="Patient" style={{ fontWeight: 500 }}>{v.PatientName || 'N/A'}</td>
+                    <td data-label="Worker">{v.WorkerName || 'N/A'}</td>
+                    <td data-label="Type">
                       <span className={`badge ${v.VisitType === 'Home' ? 'badge-success' : 'badge-info'}`}>
                         {v.VisitType === 'Home' ? <Icons.Home /> : <Icons.Building />}
                         {v.VisitType}
                       </span>
                     </td>
-                    <td><Icons.Rupee />{v.Amount || '0'}</td>
-                    <td>
+                    <td data-label="Amount"><Icons.Rupee />{v.Amount || '0'}</td>
+                    <td data-label="Status">
                       <span className={`badge ${v.FeesCollected === 'Yes' ? 'badge-success' : 'badge-warning'}`}>
                         {v.FeesCollected === 'Yes' ? <><Icons.Check />Paid</> : 'Pending'}
                       </span>

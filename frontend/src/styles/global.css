@@ -762,7 +762,8 @@ input, select, textarea {
 }
 
 @media (max-width: 480px) {
-  .grid-3, .grid-4 { grid-template-columns: 1fr; }
+  .grid-3 { grid-template-columns: 1fr; }
+  .grid-4 { grid-template-columns: repeat(2, 1fr); }
   .grid { gap: var(--spacing-md); }
   .filters-bar {
     flex-direction: column;
@@ -772,10 +773,25 @@ input, select, textarea {
     padding: var(--spacing-md);
   }
   .modal-overlay {
-    padding: var(--spacing-md);
+    padding: 0;
+  }
+  .modal {
+    max-width: 100%;
+    border-radius: 0;
+    margin: auto var(--spacing-sm);
+    max-height: 90vh;
   }
   .modal-body {
     padding: var(--spacing-lg);
+  }
+  .modal-footer {
+    flex-direction: column;
+  }
+  .modal-footer .btn {
+    width: 100%;
+  }
+  .stat-card {
+    padding: var(--spacing-md);
   }
   .stat-card .stat-value {
     font-size: var(--body-lg);
@@ -783,9 +799,65 @@ input, select, textarea {
   .table th,
   .table td {
     padding: var(--spacing-sm) var(--spacing-md);
+    font-size: var(--caption);
   }
   .search-input-wrapper {
     max-width: 100%;
+  }
+  .btn, .btn-sm {
+    min-height: 44px;
+  }
+  .btn-sm {
+    padding: var(--spacing-sm) var(--spacing-md);
+  }
+  .badge {
+    font-size: var(--caption);
+    padding: 2px var(--spacing-sm);
+    gap: 3px;
+  }
+  .table-container {
+    overflow: visible;
+    border: none;
+    background: transparent;
+  }
+  .table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0,0,0,0);
+  }
+  .table tr {
+    display: block;
+    margin-bottom: var(--spacing-md);
+    border: 1px solid var(--canvas-soft);
+    border-radius: var(--rounded-xl);
+    background: var(--canvas);
+    box-shadow: var(--shadow-sm);
+  }
+  .table td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-md);
+    border-bottom: 1px solid var(--canvas-soft);
+    font-size: var(--body-sm);
+  }
+  .table td:last-child {
+    border-bottom: none;
+  }
+  .table td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: var(--body);
+    font-size: var(--caption);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    flex-shrink: 0;
+    margin-right: var(--spacing-sm);
+  }
+  .table tr:hover td {
+    background: transparent;
   }
 }
 
@@ -796,14 +868,23 @@ input, select, textarea {
   .card {
     padding: var(--spacing-lg);
   }
+  .grid-4 { grid-template-columns: 1fr; }
   .btn {
     padding: var(--spacing-sm) var(--spacing-lg);
     font-size: var(--body-sm);
+    min-height: 40px;
   }
   .btn-sm {
     padding: var(--spacing-xs) var(--spacing-md);
+    min-height: 36px;
+  }
+  .stat-card .stat-value {
+    font-size: var(--body-md);
   }
   .header-search input {
     font-size: var(--body-sm);
+  }
+  .table td::before {
+    font-size: 10px;
   }
 }

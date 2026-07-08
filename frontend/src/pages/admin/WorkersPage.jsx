@@ -117,17 +117,17 @@ export function WorkersPage() {
             <tbody>
               {workers.map((w) => (
                 <tr key={w.WorkerID}>
-                  <td style={{ fontFamily: 'monospace', fontSize: 'var(--caption)' }}>{w.WorkerID}</td>
-                  <td style={{ fontWeight: 500 }}>{w.Name}</td>
-                  <td>{w.Mobile}</td>
-                  <td style={{ fontSize: 'var(--body-sm)' }}>{w.Email}</td>
-                  <td>
+                  <td data-label="Worker ID" style={{ fontFamily: 'monospace', fontSize: 'var(--caption)' }}>{w.WorkerID}</td>
+                  <td data-label="Name" style={{ fontWeight: 500 }}>{w.Name}</td>
+                  <td data-label="Mobile">{w.Mobile}</td>
+                  <td data-label="Email" style={{ fontSize: 'var(--body-sm)' }}>{w.Email}</td>
+                  <td data-label="Status">
                     <span className={`badge ${w.Status === 'active' ? 'badge-success' : 'badge-danger'}`}>
                       {w.Status === 'active' ? <><Icons.Check />Active</> : <><Icons.X />Inactive</>}
                     </span>
                   </td>
-                  <td>{w.JoiningDate}</td>
-                  <td>
+                  <td data-label="Joined">{w.JoiningDate}</td>
+                  <td data-label="Actions">
                     <div style={{ display: 'flex', gap: 'var(--spacing-xs)', flexWrap: 'wrap' }}>
                       <button
                         className={`btn btn-sm ${w.Status === 'active' ? 'btn-secondary' : 'btn-primary'}`}
